@@ -6,6 +6,9 @@ import { createStackNavigator, createAppContainer } from "react-navigation";
 import GetMovies from './src/components/GetMovies'
 import GetMovieDetails from './src/components/GetMovieDetails'
 class HomeScreen extends React.Component {
+  static navigationOptions = {
+    title: 'Home',
+  };
   render() {
     return (
       <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
@@ -21,25 +24,25 @@ class HomeScreen extends React.Component {
 const AppNavigator = createStackNavigator({
   Home: {
     screen: HomeScreen,
-    navigationOptions: () => ({
-      title: `Home`,
-    })
   },
   getMovies: {
     screen: GetMovies,
-    navigationOptions: () => ({
-      title: `All Movies`,
-    })  
   },
   getMovieDetails: {
     screen: GetMovieDetails,
-    navigationOptions: () => ({
-      title: `All Movies`,
-    })  
   }
 },
 {
-  initialRouteName: "Home"
+  initialRouteName: "Home",
+  defaultNavigationOptions: {
+    headerStyle: {
+      backgroundColor: "#2196F3"
+    },
+    headerTintColor: "#fff",
+    headerTitleStyle: {
+      fontWeight: "bold"
+    }
+  }
 });
 
 export default createAppContainer(AppNavigator);

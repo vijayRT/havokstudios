@@ -16,6 +16,9 @@ import Config from 'react-native-config'
 
 
 export default class GetMovies extends Component<{}> {
+  static navigationOptions = {
+    title: 'Movies',
+  };
   constructor() {
     super();
     console.log("Inside constructor")
