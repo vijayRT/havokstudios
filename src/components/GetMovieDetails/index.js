@@ -12,37 +12,34 @@ import {
   StyleSheet,
   Text,
   View,
-  FlatList,
-  Platform,
   ToastAndroid,
-  Button
+  StatusBar
 } from "react-native";
 import Spinner from "react-native-loading-spinner-overlay";
 import Config from "react-native-config";
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import Icon from "react-native-vector-icons/MaterialIcons";
 const axios = require("axios");
 
 export default class GetMovies extends Component {
-  static navigationOptions = ({navigation}) => {
+  static navigationOptions = ({ navigation }) => {
     const { params = {} } = navigation.state;
-    return{
+    return {
       title: "Movie Details",
       headerStyle: {
-        backgroundColor: "#2196F3",
+        backgroundColor: "#303135",
         elevation: 0
       },
       headerRight: (
-        <View style={{paddingRight: 8}}>
+        <View style={{ paddingRight: 8 }}>
           <Icon
             name="delete"
             size={25}
             color={"#ffffff"}
             onPress={() => params.deleteMovie()}
-          >
-        </Icon>
+          />
         </View>
-      ),
-      }
+      )
+    };
   };
   constructor() {
     super();
@@ -56,8 +53,8 @@ export default class GetMovies extends Component {
   componentDidMount() {
     const { navigation } = this.props;
     navigation.setParams({
-    deleteMovie: this.deleteMovie,
-  })
+      deleteMovie: this.deleteMovie
+    });
     this.getMovieDetails();
   }
 
@@ -66,27 +63,35 @@ export default class GetMovies extends Component {
     self.setState({
       showSpinner: true
     });
-    const {navigation} = this.props;
-    let movieId = navigation.getParam("movieId")
+    const { navigation } = this.props;
+    let movieId = navigation.getParam("movieId");
     let deleteMovieUrl = `${Config.base}${Config.deleteMovie}/${movieId}`;
-    axios.delete(deleteMovieUrl).then(function(response){
-      self.setState({
-        showSpinner: false
+    axios
+      .delete(deleteMovieUrl)
+      .then(function(response) {
+        self.setState({
+          showSpinner: false
+        });
+        ToastAndroid.show("Deleted Movie from list!", ToastAndroid.SHORT);
+        navigation.goBack();
+      })
+      .catch(function(error) {
+        self.setState({
+          showSpinner: false
+        });
+        console.warn(error.message);
+        ToastAndroid.show(
+          "There was a problem deleting the movie",
+          ToastAndroid.SHORT
+        );
       });
-      ToastAndroid.show("Deleted Movie from list!", ToastAndroid.SHORT);
-      navigation.goBack()
-    }).catch(function(error) {
-      self.setState({
-        showSpinner: false
-      });
-      console.warn(error.message);
-      ToastAndroid.show("There was a problem deleting the movie", ToastAndroid.SHORT);
-    })
-  }
+  };
   getMovieDetails() {
     let self = this;
     const { navigation } = this.props;
-    let getMovieDetailsUrl = `${Config.base}${Config.movieDetails}/${navigation.getParam("movieId")}`;
+    let getMovieDetailsUrl = `${Config.base}${
+      Config.movieDetails
+    }/${navigation.getParam("movieId")}`;
     axios
       .get(getMovieDetailsUrl)
       .then(function(response) {
@@ -107,15 +112,14 @@ export default class GetMovies extends Component {
   render() {
     return (
       <View style={styles.container}>
+      <StatusBar backgroundColor="#303135" barStyle="light-content" />
         <Spinner
           visible={this.state.showSpinner}
           textContent={"Loading..."}
           textStyle={styles.spinnerTextStyle}
         />
         <View style={styles.titleContainer}>
-          <Text style={styles.titleStyle}>
-            {this.state.movieData.title}
-          </Text>
+          <Text style={styles.titleStyle}>{this.state.movieData.title}</Text>
         </View>
         <View style={styles.descriptionContainer}>
           <Text style={styles.textStyle}>
@@ -149,18 +153,18 @@ export default class GetMovies extends Component {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flex: 1
   },
   titleContainer: {
     flex: 3,
-    backgroundColor: "#2196F3",
-    justifyContent: 'center'
+    backgroundColor: "#303135",
+    justifyContent: "center"
   },
   titleStyle: {
     fontSize: 30,
     color: "#ffffff",
-    fontFamily: 'Roboto',
-    fontWeight: 'bold',
+    fontFamily: "Roboto",
+    fontWeight: "bold",
     padding: 20
   },
   descriptionContainer: {
@@ -189,6 +193,6 @@ const styles = StyleSheet.create({
     flex: 1
   },
   boldStyle: {
-    fontWeight: 'bold'
+    fontWeight: "bold"
   }
 });
