@@ -8,16 +8,11 @@
  */
 
 import React, { Component } from "react";
-import {
-  StyleSheet,
-  Text,
-  View,
-  ToastAndroid,
-  StatusBar
-} from "react-native";
+import { StyleSheet, Text, View, ToastAndroid, StatusBar } from "react-native";
 import Spinner from "react-native-loading-spinner-overlay";
 import Config from "react-native-config";
 import Icon from "react-native-vector-icons/MaterialIcons";
+import MaterialCommunityIcon from "react-native-vector-icons/MaterialCommunityIcons"
 const axios = require("axios");
 
 export default class GetMovies extends Component {
@@ -30,7 +25,20 @@ export default class GetMovies extends Component {
         elevation: 0
       },
       headerRight: (
-        <View style={{ paddingRight: 8 }}>
+        <View
+          style={{
+            paddingRight: 8,
+            flexDirection: "row",
+            justifyContent: "space-between",
+            width: 75
+          }}
+        >
+          <MaterialCommunityIcon
+            name="pencil"
+            size={25}
+            color={"#ffffff"}
+            onPress={() => params.refresh()}
+          />
           <Icon
             name="delete"
             size={25}
@@ -112,7 +120,7 @@ export default class GetMovies extends Component {
   render() {
     return (
       <View style={styles.container}>
-      <StatusBar backgroundColor="#303135" barStyle="light-content" />
+        <StatusBar backgroundColor="#303135" barStyle="light-content" />
         <Spinner
           visible={this.state.showSpinner}
           textContent={"Loading..."}
