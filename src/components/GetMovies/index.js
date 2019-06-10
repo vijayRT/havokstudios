@@ -1,12 +1,3 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow
- * @lint-ignore-every XPLATJSCOPYRIGHT1
- */
-
 import React, { Component } from "react";
 import {
   StyleSheet,
@@ -17,7 +8,8 @@ import {
   ToastAndroid,
   StatusBar,
   TouchableOpacity,
-  Dimensions
+  Dimensions,
+  KeyboardAvoidingView
 } from "react-native";
 import { Button, Input, Slider } from "react-native-elements";
 import { ListItem } from "react-native-material-ui";
@@ -26,18 +18,12 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 import Modal from "react-native-modal";
 const axios = require("axios");
 import Config from "react-native-config";
-import { ScrollView } from "react-native-gesture-handler";
-
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 const { width: WIDTH, height: HEIGHT } = Dimensions.get("window");
-const blankMovie = {
-  title: "",
-  description: "",
-  genre: "",
-  year: "",
-  rating: 0,
-  length: 0
-};
+
 export default class GetMovies extends Component<{}> {
+
+  // This section controls what's displayed on the top header bar. On this screen, we have an Add Button and a Refresh Button
   static navigationOptions = ({ navigation }) => {
     const { params = {} } = navigation.state;
     return {
@@ -51,12 +37,14 @@ export default class GetMovies extends Component<{}> {
             width: 75
           }}
         >
+          {/* Add Movie Button */}
           <Icon
             name="add"
             size={25}
             color={"#ffffff"}
             onPress={() => params.toggleModal()}
           />
+          {/* Refresh Movie List Button */}
           <Icon
             name="refresh"
             size={25}
@@ -70,15 +58,21 @@ export default class GetMovies extends Component<{}> {
   constructor() {
     super();
     console.log("Inside constructor");
+
     this.state = {
       movieData: [],
       showSpinner: true,
       isModalVisible: false,
-      addMovie: JSON.parse(JSON.stringify(blankMovie))
-    };
+      addMovieTitle: "",
+      addMovieDescription: "",
+      addMovieGenre: "",
+      addMovieYear: "",
+      addMovieRating: 0,
+      addMovieLength: 0
+    }; // this.state controls the data on an activity. When you modify the state using this.setState() function, the screen is refreshed with the updated values
   }
   _toggleModal = () =>
-    this.setState({ isModalVisible: !this.state.isModalVisible });
+    this.setState({ isModalVisible: !this.state.isModalVisible }); // Self explanatory. When you press the + button on the header, it toggles a popup. This is the function that does it.
 
   componentDidMount() {
     const { navigation } = this.props;
@@ -91,10 +85,12 @@ export default class GetMovies extends Component<{}> {
   refresh = () => {
     this.getMovies();
   };
+  //
+  // Get Movies List
+  //
   getMovies() {
     let self = this;
-    let url = `${Config.base}${Config.movies}`;
-    console.warn(url);
+    let url = `${Config.base}${Config.movies}`; // axios is the library that is used for GET and POST operations. It's very simple.
     axios
       .get(url)
       .then(function(response) {
@@ -112,25 +108,45 @@ export default class GetMovies extends Component<{}> {
         );
       });
   }
+  //
+  // Add Movie to the list
+  //
   addMovie() {
     let self = this;
     let url = `${Config.base}${Config.addMovie}`;
-    axios.post(url, this.state.addMovie).then
-    console.warn(JSON.stringify(this.state.addMovie));
-    this._toggleModal();
-    this.setState({
-      addMovie: JSON.parse(JSON.stringify(blankMovie))
+    let requestBody = {
+      title: this.state.addMovieTitle,
+      description: this.state.addMovieDescription,
+      genre: this.state.addMovieGenre,
+      year: this.state.addMovieYear,
+      rating: this.state.addMovieRating,
+      length: this.state.addMovieLength
+    }
+    axios.post(url, requestBody).then(function(response) {
+      ToastAndroid.show("Movies Added! Refresh the list.", ToastAndroid.SHORT);
+      self.setState({
+        addMovieTitle: "",
+        addMovieDescription: "",
+        addMovieGenre: "",
+        addMovieYear: "",
+        addMovieRating: 0,
+        addMovieLength: 0
+      });
     });
+    
+    this._toggleModal();
   }
   render() {
     return (
       <View style={styles.container}>
-        <StatusBar backgroundColor="#303135" barStyle="light-content" />
+        {/* To make the status bar white */}
+        <StatusBar backgroundColor="#303135" barStyle="light-content" /> 
         <Spinner
           visible={this.state.showSpinner}
           textContent={"Loading..."}
           textStyle={styles.spinnerTextStyle}
         />
+        {/* The list component. The data attribute defines the which JSON is used to load the data. */}
         <FlatList
           contentContainerStyle={styles.movieList}
           data={this.state.movieData}
@@ -150,12 +166,15 @@ export default class GetMovies extends Component<{}> {
           )}
           keyExtractor={item => item.id.toString()}
         />
-        <ScrollView>
+        {/* Modal means popup. */}
         <Modal
           isVisible={this.state.isModalVisible}
           style={styles.addMovieModal}
         >
-          <View style={styles.addMovieModalContainer}>
+          {/* KeyboardAwareScrollView keeps the popup usable when the keyboard opens. If I use a normal View component, everything gets mashed up. */}
+          <KeyboardAwareScrollView
+            contentContainerStyle={styles.addMovieModalContainer}
+          >
             <View style={styles.addMovieModalHeader}>
               <Text style={{ fontSize: 20 }}>Add Movie</Text>
               <Icon
@@ -171,9 +190,7 @@ export default class GetMovies extends Component<{}> {
                   editable={true}
                   onChangeText={text =>
                     this.setState({
-                      addMovie: {
-                        title: text
-                      }
+                      addMovieTitle: text
                     })
                   }
                 />
@@ -185,9 +202,7 @@ export default class GetMovies extends Component<{}> {
                   editable={true}
                   onChangeText={text =>
                     this.setState({
-                      addMovie: {
-                        description: text
-                      }
+                      addMovieDescription: text
                     })
                   }
                 />
@@ -200,9 +215,7 @@ export default class GetMovies extends Component<{}> {
                     maxLength={10}
                     onChangeText={text =>
                       this.setState({
-                        addMovie: {
-                          genre: text
-                        }
+                        addMovieGenre: text
                       })
                     }
                   />
@@ -214,9 +227,7 @@ export default class GetMovies extends Component<{}> {
                     maxLength={10}
                     onChangeText={text =>
                       this.setState({
-                        addMovie: {
-                          year: text
-                        }
+                        addMovieYear: text
                       })
                     }
                   />
@@ -229,15 +240,13 @@ export default class GetMovies extends Component<{}> {
                     editable={true}
                     onChangeText={text =>
                       this.setState({
-                        addMovie: {
-                          length: parseInt(text)
-                        }
+                        addMovieLength: parseInt(text)
                       })
                     }
                   />
                 </View>
                 <View style={styles.ratingContainer}>
-                <Text>Rating</Text>
+                  <Text>Rating</Text>
                   <Slider
                     minimumValue={0}
                     maximumValue={5}
@@ -245,9 +254,7 @@ export default class GetMovies extends Component<{}> {
                     thumbTintColor={"#343434"}
                     onValueChange={value =>
                       this.setState({
-                        addMovie: {
-                          rating: parseInt(value)
-                        }
+                        addMovieRating: parseInt(value)
                       })
                     }
                   />
@@ -261,9 +268,8 @@ export default class GetMovies extends Component<{}> {
                 />
               </View>
             </View>
-          </View>
+          </KeyboardAwareScrollView>
         </Modal>
-        </ScrollView>
       </View>
     );
   }
@@ -285,11 +291,10 @@ const styles = StyleSheet.create({
   },
   addMovieModal: {
     backgroundColor: "white",
-    margin: 20,
-    height: HEIGHT - 55
+    margin: 20
   },
   addMovieModalContainer: {
-    flex: 1,
+    height: HEIGHT - 55,
     margin: 20
   },
   addMovieModalHeader: {
