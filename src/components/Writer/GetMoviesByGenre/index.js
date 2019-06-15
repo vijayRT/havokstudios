@@ -17,7 +17,7 @@ import Config from "react-native-config";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 const { height: HEIGHT } = Dimensions.get("window");
 
-export default class GetMovies extends Component<{}> {
+export default class GetMoviesByGenre extends Component<{}> {
 
   // This section controls what's displayed on the top header bar. On this screen, we have an Add Button and a Refresh Button
   static navigationOptions = ({ navigation }) => {
