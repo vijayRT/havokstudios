@@ -13,8 +13,14 @@ import {
 import { Button } from "react-native-elements";
 import { createStackNavigator, createAppContainer } from "react-navigation";
 // Import components
-import GetMovies from "./src/components/GetMovies";
-import GetMovieDetails from "./src/components/GetMovieDetails";
+import GetMovies from "./src/components/Director/GetMovies"; // Activity to render list of all movies (Director)
+import GetMovieDetails from "./src/components/Director/GetMovieDetails"; // Activity to get details of one movie (Director)
+
+import GetGenres from "./src/components/Writer/GetGenres"; // Activity to render list of all genres (Writer)
+import GetMoviesByGenre from "./src/components/Writer/GetMoviesByGenre" // Activity to render list of all movies from selected genre (Writer)
+
+import GetMoviesByRating from "./src/components/Actor/GetMoviesByRating"; // Activity to render list of all movies of a given rating (Actor)
+import GetMoviesFromCurrentYear from "./src/components/Actor/GetMoviesFromCurrentYear"; // Activity to render list of all movies from current year ordered by length (Actor)
 
 // Import assets
 import bgImage from "./assets/mainscreenbg.jpg";

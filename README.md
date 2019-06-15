@@ -29,11 +29,13 @@ Main screen that shows up with the logo. This is where you define all the Activi
 ### src
 All the important code is in here.
 
-* **src/components** - Inside this folder each Activity has its own folder
+* **src/components** - Inside this folder each section of the exam has its own folder. Each of the components are detailed in App.js.
 
-* **src/components/GetMovies** - Activity that you see when you click the Director button. Loads a list of movies that are stored on the server
+* **src/components/Director** - Each Activity inside this folder is for the Director section of the exam.
 
-* **src/components/GetMovieDetails** - Activity that you see when you click on a movie in the list
+* **src/components/Writer** - Each Activity inside this folder is for the Writer section of the exam.
+
+* **src/components/Actor** - Each Activity inside this folder is for the Actor section of the exam.
 
 ### assets
 
