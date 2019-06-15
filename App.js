@@ -49,7 +49,7 @@ class HomeScreen extends React.Component {
             buttonStyle={styles.button}
             title="Writer"
             type="outline"
-            onPress={() => this.props.navigation.navigate("getMovies")}
+            onPress={() => this.props.navigation.navigate("getGenres")}
           />
           <Button
             titleStyle={styles.buttonText}
@@ -81,6 +81,12 @@ const AppNavigator = createStackNavigator(
     },
     getMovieDetails: {
       screen: GetMovieDetails
+    },
+    getGenres: {
+      screen: GetGenres
+    },
+    getMoviesByGenre: {
+      screen :GetMoviesByGenre
     }
   },
   {

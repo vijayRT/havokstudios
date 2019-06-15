@@ -23,7 +23,7 @@ export default class GetGenres extends Component<{}> {
   static navigationOptions = ({ navigation }) => {
     const { params = {} } = navigation.state;
     return {
-      title: "Movies",
+      title: "Genres",
       headerRight: (
         <View
           style={{
@@ -32,15 +32,8 @@ export default class GetGenres extends Component<{}> {
             justifyContent: "space-between",
             width: 75
           }}
-        >
-          {/* Add Movie Button */}
-          <Icon
-            name="add"
-            size={25}
-            color={"#ffffff"}
-            onPress={() => params.toggleModal()}
-          />
-          {/* Refresh Movie List Button */}
+        >          
+          {/* Refresh Genre List Button */}
           <Icon
             name="refresh"
             size={25}
@@ -56,15 +49,10 @@ export default class GetGenres extends Component<{}> {
     console.log("Inside constructor");
 
     this.state = {
-      movieData: [],
+      genreData: [],
       showSpinner: true,
       isModalVisible: false,
-      addMovieTitle: "",
-      addMovieDescription: "",
-      addMovieGenre: "",
-      addMovieYear: "",
-      addMovieRating: 0,
-      addMovieLength: 0
+      
     }; // this.state controls the data on an activity. When you modify the state using this.setState() function, the screen is refreshed with the updated values
   }
   _toggleModal = () =>
@@ -76,24 +64,24 @@ export default class GetGenres extends Component<{}> {
       refresh: this.refresh,
       toggleModal: this._toggleModal
     });
-    this.getMovies();
+    this.getGenres();
   }
   refresh = () => {
-    this.getMovies();
+    this.getGenres();
   };
   //
-  // Get Movies List
+  // Get Genres List
   //
-  getMovies() {
+  getGenres() {
     let self = this;
-    let url = `${Config.base}${Config.movies}`; // axios is the library that is used for GET and POST operations. It's very simple.
+    let url = `${Config.base}${Config.genres}`; // axios is the library that is used for GET and POST operations. It's very simple.
     axios
       .get(url)
       .then(function(response) {
         console.log(response.status);
         self.setState({
           showSpinner: false,
-          movieData: response.data
+          genreData: response.data
         });
         ToastAndroid.show("Movies List loaded!", ToastAndroid.SHORT);
         console.log(response.data.length);
@@ -103,35 +91,7 @@ export default class GetGenres extends Component<{}> {
           "There has been a problem with your fetch operation: " + error.message
         );
       });
-  }
-  //
-  // Add Movie to the list
-  //
-  addMovie() {
-    let self = this;
-    let url = `${Config.base}${Config.addMovie}`;
-    let requestBody = {
-      title: this.state.addMovieTitle,
-      description: this.state.addMovieDescription,
-      genre: this.state.addMovieGenre,
-      year: this.state.addMovieYear,
-      rating: this.state.addMovieRating,
-      length: this.state.addMovieLength
-    }
-    axios.post(url, requestBody).then(function() {
-      ToastAndroid.show("Movies Added! Refresh the list.", ToastAndroid.SHORT);
-      self.setState({
-        addMovieTitle: "",
-        addMovieDescription: "",
-        addMovieGenre: "",
-        addMovieYear: "",
-        addMovieRating: 0,
-        addMovieLength: 0
-      });
-    });
-    
-    this._toggleModal();
-  }
+  }  
   render() {
     return (
       <View style={styles.container}>
@@ -144,23 +104,22 @@ export default class GetGenres extends Component<{}> {
         />
         {/* The list component. The data attribute defines the which JSON is used to load the data. */}
         <FlatList
-          contentContainerStyle={styles.movieList}
-          data={this.state.movieData}
+          contentContainerStyle={styles.genreList}
+          data={this.state.genreData}
           renderItem={({ item }) => (
             <ListItem
               divider
               centerElement={{
-                primaryText: item.title,
-                secondaryText: item.description
+                primaryText: item
               }}
               onPress={() =>
-                this.props.navigation.navigate("getMovieDetails", {
-                  movieId: item.id
+                this.props.navigation.navigate("getMoviesByGenre", {
+                  genre: item.toString()
                 })
               }
             />
           )}
-          keyExtractor={item => item.id.toString()}
+          keyExtractor={item => item.toString()}
         />
         {/* Modal means popup. */}
         <Modal
@@ -278,7 +237,7 @@ const styles = StyleSheet.create({
     alignItems: "stretch",
     backgroundColor: "#F5FCFF"
   },
-  movieList: {
+  genreList: {
     justifyContent: "center",
     alignItems: "stretch"
   },
