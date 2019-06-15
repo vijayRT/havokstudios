@@ -33,13 +33,7 @@ export default class GetMoviesByGenre extends Component<{}> {
             width: 75
           }}
         >
-          {/* Add Movie Button */}
-          <Icon
-            name="add"
-            size={25}
-            color={"#ffffff"}
-            onPress={() => params.toggleModal()}
-          />
+          
           {/* Refresh Movie List Button */}
           <Icon
             name="refresh"
@@ -59,12 +53,6 @@ export default class GetMoviesByGenre extends Component<{}> {
       movieData: [],
       showSpinner: true,
       isModalVisible: false,
-      addMovieTitle: "",
-      addMovieDescription: "",
-      addMovieGenre: "",
-      addMovieYear: "",
-      addMovieRating: 0,
-      addMovieLength: 0
     }; // this.state controls the data on an activity. When you modify the state using this.setState() function, the screen is refreshed with the updated values
   }
   _toggleModal = () =>
@@ -76,17 +64,18 @@ export default class GetMoviesByGenre extends Component<{}> {
       refresh: this.refresh,
       toggleModal: this._toggleModal
     });
-    this.getMovies();
+    this.getMoviesByGenre();
   }
   refresh = () => {
-    this.getMovies();
+    this.getMoviesByGenre();
   };
   //
   // Get Movies List
   //
-  getMovies() {
+  getMoviesByGenre() {
     let self = this;
-    let url = `${Config.base}${Config.movies}`; // axios is the library that is used for GET and POST operations. It's very simple.
+    const { navigation } = this.props; 
+    let url = `${Config.base}${Config.moviesByGenre}/${navigation.getParam("genre")}`; // axios is the library that is used for GET and POST operations. It's very simple.
     axios
       .get(url)
       .then(function(response) {
@@ -104,34 +93,6 @@ export default class GetMoviesByGenre extends Component<{}> {
         );
       });
   }
-  //
-  // Add Movie to the list
-  //
-  addMovie() {
-    let self = this;
-    let url = `${Config.base}${Config.addMovie}`;
-    let requestBody = {
-      title: this.state.addMovieTitle,
-      description: this.state.addMovieDescription,
-      genre: this.state.addMovieGenre,
-      year: this.state.addMovieYear,
-      rating: this.state.addMovieRating,
-      length: this.state.addMovieLength
-    }
-    axios.post(url, requestBody).then(function() {
-      ToastAndroid.show("Movies Added! Refresh the list.", ToastAndroid.SHORT);
-      self.setState({
-        addMovieTitle: "",
-        addMovieDescription: "",
-        addMovieGenre: "",
-        addMovieYear: "",
-        addMovieRating: 0,
-        addMovieLength: 0
-      });
-    });
-    
-    this._toggleModal();
-  }
   render() {
     return (
       <View style={styles.container}>
@@ -145,16 +106,16 @@ export default class GetMoviesByGenre extends Component<{}> {
         {/* The list component. The data attribute defines the which JSON is used to load the data. */}
         <FlatList
           contentContainerStyle={styles.movieList}
-          data={this.state.movieData}
+          data={this.state.movieData.sort((a, b) =>{return b.year - a.year})}
           renderItem={({ item }) => (
             <ListItem
               divider
               centerElement={{
                 primaryText: item.title,
-                secondaryText: item.description
+                secondaryText: item.year.toString()
               }}
               onPress={() =>
-                this.props.navigation.navigate("getMovieDetails", {
+                this.props.navigation.navigate("getMovieDetailsWriter", {
                   movieId: item.id
                 })
               }

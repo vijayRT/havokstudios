@@ -18,6 +18,7 @@ import GetMovieDetails from "./src/components/Director/GetMovieDetails"; // Acti
 
 import GetGenres from "./src/components/Writer/GetGenres"; // Activity to render list of all genres (Writer)
 import GetMoviesByGenre from "./src/components/Writer/GetMoviesByGenre" // Activity to render list of all movies from selected genre (Writer)
+import GetMovieDetailsWriter from "./src/components/Writer/GetMovieDetailsWriter" // Writers can only modify the description
 
 import GetMoviesByRating from "./src/components/Actor/GetMoviesByRating"; // Activity to render list of all movies of a given rating (Actor)
 import GetMoviesFromCurrentYear from "./src/components/Actor/GetMoviesFromCurrentYear"; // Activity to render list of all movies from current year ordered by length (Actor)
@@ -49,7 +50,7 @@ class HomeScreen extends React.Component {
             buttonStyle={styles.button}
             title="Writer"
             type="outline"
-            onPress={() => this.props.navigation.navigate("getMovies")}
+            onPress={() => this.props.navigation.navigate("getGenres")}
           />
           <Button
             titleStyle={styles.buttonText}
@@ -81,6 +82,15 @@ const AppNavigator = createStackNavigator(
     },
     getMovieDetails: {
       screen: GetMovieDetails
+    },
+    getGenres: {
+      screen: GetGenres
+    },
+    getMoviesByGenre: {
+      screen :GetMoviesByGenre
+    },
+    getMovieDetailsWriter: {
+      screen :GetMovieDetailsWriter
     }
   },
   {
