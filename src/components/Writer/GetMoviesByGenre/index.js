@@ -115,7 +115,7 @@ export default class GetMoviesByGenre extends Component<{}> {
                 secondaryText: item.year.toString()
               }}
               onPress={() =>
-                this.props.navigation.navigate("getMovieDetails", {
+                this.props.navigation.navigate("getMovieDetailsWriter", {
                   movieId: item.id
                 })
               }

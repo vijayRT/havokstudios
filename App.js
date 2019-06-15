@@ -18,6 +18,7 @@ import GetMovieDetails from "./src/components/Director/GetMovieDetails"; // Acti
 
 import GetGenres from "./src/components/Writer/GetGenres"; // Activity to render list of all genres (Writer)
 import GetMoviesByGenre from "./src/components/Writer/GetMoviesByGenre" // Activity to render list of all movies from selected genre (Writer)
+import GetMovieDetailsWriter from "./src/components/Writer/GetMovieDetailsWriter" // Writers can only modify the description
 
 import GetMoviesByRating from "./src/components/Actor/GetMoviesByRating"; // Activity to render list of all movies of a given rating (Actor)
 import GetMoviesFromCurrentYear from "./src/components/Actor/GetMoviesFromCurrentYear"; // Activity to render list of all movies from current year ordered by length (Actor)
@@ -87,6 +88,9 @@ const AppNavigator = createStackNavigator(
     },
     getMoviesByGenre: {
       screen :GetMoviesByGenre
+    },
+    getMovieDetailsWriter: {
+      screen :GetMovieDetailsWriter
     }
   },
   {
