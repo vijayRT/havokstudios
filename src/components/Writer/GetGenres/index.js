@@ -79,7 +79,7 @@ export default class GetGenres extends Component<{}> {
     axios
       .get(url)
       .then(function(response) {
-        console.log(response.status);
+       console.log(response.status);
         self.setState({
           showSpinner: false,
           genreData: response.data
@@ -88,9 +88,11 @@ export default class GetGenres extends Component<{}> {
         console.log(response.data.length);
       })
       .catch(function(error) {
-        console.log(
-          "There has been a problem with your fetch operation: " + error.message
-        );
+        console.log("There has been a problem with your fetch operation: " + error.message)
+        ToastAndroid.show("There was an error with your request!" + error.message, ToastAndroid.SHORT);
+        self.setState({
+          showSpinner: false,
+        })        
       });
   }  
   render() {

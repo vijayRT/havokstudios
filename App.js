@@ -91,6 +91,9 @@ const AppNavigator = createStackNavigator(
     },
     getMoviesFromCurrentYear: {
       screen :GetMoviesFromCurrentYear
+    },
+    getMoviesByRating: {
+      screen: GetMoviesByRating
     }
   },
   {

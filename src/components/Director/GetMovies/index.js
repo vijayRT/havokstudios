@@ -64,7 +64,7 @@ export default class GetMovies extends Component<{}> {
       addMovieTitle: "",
       addMovieDescription: "",
       addMovieGenre: "",
-      addMovieYear: "",
+      addMovieYear: 0,
       addMovieRating: 0,
       addMovieLength: 0
     }; // this.state controls the data on an activity. When you modify the state using this.setState() function, the screen is refreshed with the updated values
@@ -113,43 +113,41 @@ export default class GetMovies extends Component<{}> {
     }
   }
   
+    
+  
+  
   //
 
   // Get Movies List
   //
   getMovies() {
     let self = this;
-    if (!this.state.isMovieListLoaded){
-      let url = `${Config.base}${Config.movies}`; // axios is the library that is used for GET and POST operations. It's very simple.
-      axios
-        .get(url)
-        .then(function(response) {
-          console.log(response.status);
+    let url = `${Config.base}${Config.movies}`; // axios is the library that is used for GET and POST operations. It's very simple.
+    axios
+      .get(url)
+      .then(function(response) {
+        console.log(response.status);
+        self.setState({
+          showSpinner: false,
+          movieData: _.sortBy(response.data, 'title'),
+          isMovieListLoaded: true
+        });
+        self.setMainList(response.data);
+        console.log(response.data.length);
+      })
+      .catch(function(error) {
+        if (!self.state.isMovieListLoaded){
+          ToastAndroid.show("There was an error with your request!", ToastAndroid.SHORT);
           self.setState({
             showSpinner: false,
-            movieData: _.sortBy(response.data, 'title'),
-            isMovieListLoaded: true
           });
-          self.setMainList(response.data);
-          console.log(response.data.length);
-        })
-        .catch(function(error) {
-          if (!this.state.isMovieListLoaded){
-            ToastAndroid.show("There was an error with your request!", ToastAndroid.SHORT);
-            self.setState({
-              showSpinner: false,
-            });
-          }
-          else {
-            this.getMainList();
-          }
-        });
-    }
-    else {
-      this.getMainList();
-      
-    }
-  }
+        }
+        else {
+          this.getMainList();
+        }
+      });
+  };
+    
   //
   // Add Movie to the list
   //
@@ -170,7 +168,7 @@ export default class GetMovies extends Component<{}> {
         addMovieTitle: "",
         addMovieDescription: "",
         addMovieGenre: "",
-        addMovieYear: "",
+        addMovieYear: 0,
         addMovieRating: 0,
         addMovieLength: 0
       });
@@ -269,7 +267,7 @@ export default class GetMovies extends Component<{}> {
                     maxLength={10}
                     onChangeText={text =>
                       this.setState({
-                        addMovieYear: text
+                        addMovieYear: parseInt(text)
                       })
                     }
                   />
