@@ -57,7 +57,7 @@ class HomeScreen extends React.Component {
             buttonStyle={styles.button}
             title="Actor"
             type="outline"
-            onPress={() => this.props.navigation.navigate("getMovies")}
+            onPress={() => this.props.navigation.navigate("getMoviesFromCurrentYear")}
           />
         </View>
       </ImageBackground>
@@ -89,8 +89,8 @@ const AppNavigator = createStackNavigator(
     getMoviesByGenre: {
       screen :GetMoviesByGenre
     },
-    getMovieDetailsWriter: {
-      screen :GetMovieDetailsWriter
+    getMoviesFromCurrentYear: {
+      screen :GetMoviesFromCurrentYear
     }
   },
   {

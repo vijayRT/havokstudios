@@ -14,6 +14,7 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 import Modal from "react-native-modal";
 const axios = require("axios");
 import Config from "react-native-config";
+var _ = require('lodash')
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 const { height: HEIGHT } = Dimensions.get("window");
 
@@ -110,7 +111,7 @@ export default class GetGenres extends Component<{}> {
             <ListItem
               divider
               centerElement={{
-                primaryText: item
+                primaryText: _.startCase(item)
               }}
               onPress={() =>
                 this.props.navigation.navigate("getMoviesByGenre", {

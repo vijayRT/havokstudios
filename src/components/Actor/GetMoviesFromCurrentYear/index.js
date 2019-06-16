@@ -23,7 +23,7 @@ export default class GetMoviesFromCurrentYear extends Component<{}> {
   static navigationOptions = ({ navigation }) => {
     const { params = {} } = navigation.state;
     return {
-      title: "Movies",
+      title: "Current Year Movies",
       headerRight: (
         <View
           style={{
@@ -33,19 +33,19 @@ export default class GetMoviesFromCurrentYear extends Component<{}> {
             width: 75
           }}
         >
-          {/* Add Movie Button */}
-          <Icon
-            name="add"
-            size={25}
-            color={"#ffffff"}
-            onPress={() => params.toggleModal()}
-          />
+          
           {/* Refresh Movie List Button */}
           <Icon
             name="refresh"
             size={25}
             color={"#ffffff"}
             onPress={() => params.refresh()}
+          />
+          <Icon
+            name="star"
+            size={25}
+            color={"#ffffff"}
+            onPress={() => params.changeSort()}
           />
         </View>
       )
@@ -59,41 +59,59 @@ export default class GetMoviesFromCurrentYear extends Component<{}> {
       movieData: [],
       showSpinner: true,
       isModalVisible: false,
-      addMovieTitle: "",
-      addMovieDescription: "",
-      addMovieGenre: "",
-      addMovieYear: "",
-      addMovieRating: 0,
-      addMovieLength: 0
+      editingMovieIndex: 0,
+      sortingMode: "rating",
+      editedRating: 0
     }; // this.state controls the data on an activity. When you modify the state using this.setState() function, the screen is refreshed with the updated values
   }
-  _toggleModal = () =>
-    this.setState({ isModalVisible: !this.state.isModalVisible }); // Self explanatory. When you press the + button on the header, it toggles a popup. This is the function that does it.
+  openUpdateModal = (index) =>
+    this.setState({ 
+      isModalVisible: !this.state.isModalVisible,
+      editingMovieIndex: this.state.movieData[index].id,
+      editedRating: this.state.movieData[index].rating
+    }); // Self explanatory. When you press the + button on the header, it toggles a popup. This is the function that does it.
 
   componentDidMount() {
     const { navigation } = this.props;
     navigation.setParams({
       refresh: this.refresh,
-      toggleModal: this._toggleModal
+      changeSort: this.changeSort,
+      toggleModal: this.openUpdateModal
     });
-    this.getMovies();
+    this.getMoviesByGenre();
   }
+
+  changeSort = () => {
+    this.setState({
+      sortingMode: (this.state.sortingMode === "rating") ? "length" : "rating"
+    });
+    this.getMoviesByGenre();
+    ToastAndroid.show("Sorted by " + this.state.sortingMode)
+  };
+
   refresh = () => {
-    this.getMovies();
+    this.getMoviesByGenre();
   };
   //
   // Get Movies List
   //
-  getMovies() {
+  getMoviesByGenre() {
     let self = this;
+    const { navigation } = this.props;
+    console.warn(this.state.sortingMode)
     let url = `${Config.base}${Config.movies}`; // axios is the library that is used for GET and POST operations. It's very simple.
     axios
       .get(url)
       .then(function(response) {
-        console.log(response.status);
+        let currentYearMovies = []
+        response.data.forEach(function(movie) {
+          if (movie.year === 2017) {
+            currentYearMovies.push(movie)
+          }
+        })
         self.setState({
           showSpinner: false,
-          movieData: response.data
+          movieData: (currentYearMovies.length > 1) ? _.sortBy(currentYearMovies, self.state.sortingMode) : currentYearMovies
         });
         ToastAndroid.show("Movies List loaded!", ToastAndroid.SHORT);
         console.log(response.data.length);
@@ -104,33 +122,21 @@ export default class GetMoviesFromCurrentYear extends Component<{}> {
         );
       });
   }
-  //
-  // Add Movie to the list
-  //
-  addMovie() {
+  updateRating() {
     let self = this;
-    let url = `${Config.base}${Config.addMovie}`;
+    let url = `${Config.base}${Config.updateRating}`;
     let requestBody = {
-      title: this.state.addMovieTitle,
-      description: this.state.addMovieDescription,
-      genre: this.state.addMovieGenre,
-      year: this.state.addMovieYear,
-      rating: this.state.addMovieRating,
-      length: this.state.addMovieLength
+      id: this.state.editingMovieIndex,
+      rating: this.state.editedRating,
     }
     axios.post(url, requestBody).then(function() {
-      ToastAndroid.show("Movies Added! Refresh the list.", ToastAndroid.SHORT);
+      ToastAndroid.show("Rating Updated! Refresh the list.", ToastAndroid.SHORT);
       self.setState({
-        addMovieTitle: "",
-        addMovieDescription: "",
-        addMovieGenre: "",
-        addMovieYear: "",
-        addMovieRating: 0,
-        addMovieLength: 0
+        editingMovieIndex: 0,
+        editedRating: 0,
+        isModalVisible: false
       });
     });
-    
-    this._toggleModal();
   }
   render() {
     return (
@@ -145,19 +151,15 @@ export default class GetMoviesFromCurrentYear extends Component<{}> {
         {/* The list component. The data attribute defines the which JSON is used to load the data. */}
         <FlatList
           contentContainerStyle={styles.movieList}
-          data={this.state.movieData}
-          renderItem={({ item }) => (
+          data={this.state.movieData.sort((a, b) =>{return b.year - a.year})}
+          renderItem={({ item, index }) => (
             <ListItem
               divider
               centerElement={{
-                primaryText: item.title,
-                secondaryText: item.description
+                primaryText: item.title + " (" + item.year.toString() + ")",
+                secondaryText: (this.state.sortingMode === "rating") ? "Rating: " + item.rating.toString() : "Length: " + item.rating.toString()
               }}
-              onPress={() =>
-                this.props.navigation.navigate("getMovieDetails", {
-                  movieId: item.id
-                })
-              }
+              onPress={() => this.openUpdateModal(index)}
             />
           )}
           keyExtractor={item => item.id.toString()}
@@ -172,95 +174,36 @@ export default class GetMoviesFromCurrentYear extends Component<{}> {
             contentContainerStyle={styles.addMovieModalContainer}
           >
             <View style={styles.addMovieModalHeader}>
-              <Text style={{ fontSize: 20 }}>Add Movie</Text>
+              <Text style={{ fontSize: 20 }}>Update Rating</Text>
               <Icon
                 name="close"
                 size={25}
-                onPress={() => this._toggleModal()}
+                onPress={() => this.setState({
+                  isModalVisible: false,
+                })}
               />
             </View>
             <View style={styles.addMovieModalBody}>
-              <View style={{ flex: 1 }}>
-                <Input
-                  placeholder="Title"
-                  editable={true}
-                  onChangeText={text =>
-                    this.setState({
-                      addMovieTitle: text
-                    })
-                  }
-                />
-              </View>
-              <View style={{ flex: 1 }}>
-                <Input
-                  multiline={true}
-                  placeholder="Description"
-                  editable={true}
-                  onChangeText={text =>
-                    this.setState({
-                      addMovieDescription: text
-                    })
-                  }
-                />
-              </View>
-              <View style={styles.addMovieModalSubContainer}>
-                <View style={styles.subSubContainer}>
-                  <Input
-                    placeholder="Genre"
-                    editable={true}
-                    maxLength={10}
-                    onChangeText={text =>
-                      this.setState({
-                        addMovieGenre: text
-                      })
-                    }
-                  />
-                </View>
-                <View style={styles.subSubContainer}>
-                  <Input
-                    placeholder="Year"
-                    editable={true}
-                    maxLength={10}
-                    onChangeText={text =>
-                      this.setState({
-                        addMovieYear: text
-                      })
-                    }
-                  />
-                </View>
-              </View>
-              <View style={styles.addMovieModalSubContainer}>
-                <View style={styles.subSubContainer}>
-                  <Input
-                    placeholder="Length"
-                    editable={true}
-                    onChangeText={text =>
-                      this.setState({
-                        addMovieLength: parseInt(text)
-                      })
-                    }
-                  />
-                </View>
-                <View style={styles.ratingContainer}>
+            <View style={styles.ratingContainer}>
                   <Text>Rating</Text>
                   <Slider
+                    value={this.state.editedRating}
                     minimumValue={0}
                     maximumValue={5}
                     step={1}
                     thumbTintColor={"#343434"}
                     onValueChange={value =>
                       this.setState({
-                        addMovieRating: parseInt(value)
+                        editedRating: parseInt(value)
                       })
                     }
                   />
                 </View>
-              </View>
               <View style={styles.addMovieModalOKButtonContainer}>
                 <Button
                   type="clear"
-                  title="Add Movie"
-                  onPress={() => this.addMovie()}
+                  title="Update Rating"
+                  onPress={() => this.updateRating(this.state.editingMovieIndex)}
                 />
               </View>
             </View>
@@ -287,11 +230,12 @@ const styles = StyleSheet.create({
   },
   addMovieModal: {
     backgroundColor: "white",
+    height: 200,
     margin: 20
   },
   addMovieModalContainer: {
-    height: HEIGHT - 55,
-    margin: 20
+    flex: 1,
+    margin: 20,
   },
   addMovieModalHeader: {
     flex: 1,

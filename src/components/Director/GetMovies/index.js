@@ -12,11 +12,12 @@ import { ListItem } from "react-native-material-ui";
 import Spinner from "react-native-loading-spinner-overlay";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import Modal from "react-native-modal";
+import AsyncStorage from '@react-native-community/async-storage';
 const axios = require("axios");
 import Config from "react-native-config";
+var _ = require('lodash')
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 const { height: HEIGHT } = Dimensions.get("window");
-
 export default class GetMovies extends Component<{}> {
 
   // This section controls what's displayed on the top header bar. On this screen, we have an Add Button and a Refresh Button
@@ -58,6 +59,7 @@ export default class GetMovies extends Component<{}> {
     this.state = {
       movieData: [],
       showSpinner: true,
+      isMovieListLoaded: false,
       isModalVisible: false,
       addMovieTitle: "",
       addMovieDescription: "",
@@ -81,28 +83,68 @@ export default class GetMovies extends Component<{}> {
   refresh = () => {
     this.getMovies();
   };
+
+  setMainList = async (data) => {
+    try {
+      await AsyncStorage.setItem('mainList', JSON.stringify(data));
+      ToastAndroid.show("Movies List Loaded and Saved!", ToastAndroid.SHORT);
+    } catch(e) {
+      console.log(e);
+      ToastAndroid.show("Couldn't save Movie List!", ToastAndroid.SHORT);
+    }
+  
+    console.log('Done.')
+  }
+
+  getMainList = async () => {
+    try {
+      const mainList = await AsyncStorage.getItem('mainList');
+      console.log(mainList);
+      const parsedList = JSON.parse(mainList);
+      console.log("is Array: " + Array.isArray(parsedList));
+      if(parsedList !== null) {
+        this.setState({
+          movieData: _.sortBy(parsedList, 'title')
+        })
+        ToastAndroid.show("Movie list loaded offline!", ToastAndroid.SHORT);
+      }
+    } catch(e) {
+      ToastAndroid.show("Couldn't retrieve saved list!", ToastAndroid.SHORT);
+    }
+  }
+  
   //
+
   // Get Movies List
   //
   getMovies() {
     let self = this;
-    let url = `${Config.base}${Config.movies}`; // axios is the library that is used for GET and POST operations. It's very simple.
-    axios
-      .get(url)
-      .then(function(response) {
-        console.log(response.status);
-        self.setState({
-          showSpinner: false,
-          movieData: response.data
-        });
-        ToastAndroid.show("Movies List loaded!", ToastAndroid.SHORT);
-        console.log(response.data.length);
-      })
-      .catch(function(error) {
-        console.log(
-          "There has been a problem with your fetch operation: " + error.message
-        );
-      });
+    if (!this.state.isMovieListLoaded){
+      let url = `${Config.base}${Config.movies}`; // axios is the library that is used for GET and POST operations. It's very simple.
+      axios
+        .get(url)
+        .then(function(response) {
+          console.log(response.status);
+          self.setState({
+            showSpinner: false,
+            movieData: _.sortBy(response.data, 'title'),
+            isMovieListLoaded: true
+          });
+          self.setMainList(response.data);
+          console.log(response.data.length);
+        })
+        .catch(function(error) {
+          ToastAndroid.show("There was an error with your request!", ToastAndroid.SHORT);
+          self.setState({
+            showSpinner: false,
+          });
+        }
+      );
+    }
+    else {
+      this.getMainList();
+      
+    }
   }
   //
   // Add Movie to the list
@@ -145,7 +187,7 @@ export default class GetMovies extends Component<{}> {
         {/* The list component. The data attribute defines the which JSON is used to load the data. */}
         <FlatList
           contentContainerStyle={styles.movieList}
-          data={this.state.movieData}
+          data={this.state.movieData.sort((a, b) =>{return b.title > a.title})}
           renderItem={({ item }) => (
             <ListItem
               divider

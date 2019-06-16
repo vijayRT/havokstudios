@@ -53,16 +53,22 @@ export default class GetMoviesByGenre extends Component<{}> {
       movieData: [],
       showSpinner: true,
       isModalVisible: false,
+      editingMovieIndex: 0,
+      editDescription: ''
     }; // this.state controls the data on an activity. When you modify the state using this.setState() function, the screen is refreshed with the updated values
   }
-  _toggleModal = () =>
-    this.setState({ isModalVisible: !this.state.isModalVisible }); // Self explanatory. When you press the + button on the header, it toggles a popup. This is the function that does it.
+  openUpdateModal = (index) =>
+    this.setState({ 
+      isModalVisible: !this.state.isModalVisible,
+      editingMovieIndex: this.state.movieData[index].id,
+      editDescription: this.state.movieData[index].description
+    }); // Self explanatory. When you press the + button on the header, it toggles a popup. This is the function that does it.
 
   componentDidMount() {
     const { navigation } = this.props;
     navigation.setParams({
       refresh: this.refresh,
-      toggleModal: this._toggleModal
+      toggleModal: this.openUpdateModal
     });
     this.getMoviesByGenre();
   }
@@ -93,6 +99,22 @@ export default class GetMoviesByGenre extends Component<{}> {
         );
       });
   }
+  updateDescription() {
+    let self = this;
+    let url = `${Config.base}${Config.updateDescription}`;
+    let requestBody = {
+      id: this.state.editingMovieIndex,
+      description: this.state.editDescription,
+    }
+    axios.post(url, requestBody).then(function() {
+      ToastAndroid.show("Description Updated! Refresh the list.", ToastAndroid.SHORT);
+      self.setState({
+        editingMovieIndex: 0,
+        editDescription: "",
+        isModalVisible: false
+      });
+    });
+  }
   render() {
     return (
       <View style={styles.container}>
@@ -107,18 +129,14 @@ export default class GetMoviesByGenre extends Component<{}> {
         <FlatList
           contentContainerStyle={styles.movieList}
           data={this.state.movieData.sort((a, b) =>{return b.year - a.year})}
-          renderItem={({ item }) => (
+          renderItem={({ item, index }) => (
             <ListItem
               divider
               centerElement={{
                 primaryText: item.title,
                 secondaryText: item.year.toString()
               }}
-              onPress={() =>
-                this.props.navigation.navigate("getMovieDetailsWriter", {
-                  movieId: item.id
-                })
-              }
+              onPress={() => this.openUpdateModal(index)}
             />
           )}
           keyExtractor={item => item.id.toString()}
@@ -133,95 +151,34 @@ export default class GetMoviesByGenre extends Component<{}> {
             contentContainerStyle={styles.addMovieModalContainer}
           >
             <View style={styles.addMovieModalHeader}>
-              <Text style={{ fontSize: 20 }}>Add Movie</Text>
+              <Text style={{ fontSize: 20 }}>Update Description</Text>
               <Icon
                 name="close"
                 size={25}
-                onPress={() => this._toggleModal()}
+                onPress={() => this.setState({
+                  isModalVisible: false
+                })}
               />
             </View>
             <View style={styles.addMovieModalBody}>
               <View style={{ flex: 1 }}>
                 <Input
-                  placeholder="Title"
-                  editable={true}
-                  onChangeText={text =>
-                    this.setState({
-                      addMovieTitle: text
-                    })
-                  }
-                />
-              </View>
-              <View style={{ flex: 1 }}>
-                <Input
                   multiline={true}
                   placeholder="Description"
+                  value={this.state.editDescription}
                   editable={true}
                   onChangeText={text =>
                     this.setState({
-                      addMovieDescription: text
+                      editDescription: text
                     })
                   }
                 />
-              </View>
-              <View style={styles.addMovieModalSubContainer}>
-                <View style={styles.subSubContainer}>
-                  <Input
-                    placeholder="Genre"
-                    editable={true}
-                    maxLength={10}
-                    onChangeText={text =>
-                      this.setState({
-                        addMovieGenre: text
-                      })
-                    }
-                  />
-                </View>
-                <View style={styles.subSubContainer}>
-                  <Input
-                    placeholder="Year"
-                    editable={true}
-                    maxLength={10}
-                    onChangeText={text =>
-                      this.setState({
-                        addMovieYear: text
-                      })
-                    }
-                  />
-                </View>
-              </View>
-              <View style={styles.addMovieModalSubContainer}>
-                <View style={styles.subSubContainer}>
-                  <Input
-                    placeholder="Length"
-                    editable={true}
-                    onChangeText={text =>
-                      this.setState({
-                        addMovieLength: parseInt(text)
-                      })
-                    }
-                  />
-                </View>
-                <View style={styles.ratingContainer}>
-                  <Text>Rating</Text>
-                  <Slider
-                    minimumValue={0}
-                    maximumValue={5}
-                    step={1}
-                    thumbTintColor={"#343434"}
-                    onValueChange={value =>
-                      this.setState({
-                        addMovieRating: parseInt(value)
-                      })
-                    }
-                  />
-                </View>
               </View>
               <View style={styles.addMovieModalOKButtonContainer}>
                 <Button
                   type="clear"
-                  title="Add Movie"
-                  onPress={() => this.addMovie()}
+                  title="Update Description"
+                  onPress={() => this.updateDescription(this.state.editingMovieIndex)}
                 />
               </View>
             </View>
@@ -248,11 +205,12 @@ const styles = StyleSheet.create({
   },
   addMovieModal: {
     backgroundColor: "white",
+    height: 200,
     margin: 20
   },
   addMovieModalContainer: {
-    height: HEIGHT - 55,
-    margin: 20
+    flex: 1,
+    margin: 20,
   },
   addMovieModalHeader: {
     flex: 1,
