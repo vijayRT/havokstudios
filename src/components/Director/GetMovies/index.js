@@ -134,12 +134,16 @@ export default class GetMovies extends Component<{}> {
           console.log(response.data.length);
         })
         .catch(function(error) {
-          ToastAndroid.show("There was an error with your request!", ToastAndroid.SHORT);
-          self.setState({
-            showSpinner: false,
-          });
-        }
-      );
+          if (!this.state.isMovieListLoaded){
+            ToastAndroid.show("There was an error with your request!", ToastAndroid.SHORT);
+            self.setState({
+              showSpinner: false,
+            });
+          }
+          else {
+            this.getMainList();
+          }
+        });
     }
     else {
       this.getMainList();
