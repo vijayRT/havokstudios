@@ -259,7 +259,7 @@ export default class GetMovies extends Component {
                 <View style={styles.subSubContainer}>
                   <Input
                     placeholder="Year"
-                    value={this.state.editMovieYear}
+                    value={this.state.editMovieYear+""}
                     editable={true}
                     maxLength={10}
                     onChangeText={text =>
@@ -274,7 +274,7 @@ export default class GetMovies extends Component {
                 <View style={styles.subSubContainer}>
                   <Input
                     placeholder="Length"
-                    value={this.state.editMovieLength}
+                    value={this.state.editMovieLength+""}
                     editable={true}
                     onChangeText={text =>
                       this.setState({
