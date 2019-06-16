@@ -98,7 +98,6 @@ export default class GetMoviesFromCurrentYear extends Component<{}> {
   getMoviesByGenre() {
     let self = this;
     const { navigation } = this.props;
-    console.warn(this.state.sortingMode)
     let url = `${Config.base}${Config.movies}`; // axios is the library that is used for GET and POST operations. It's very simple.
     axios
       .get(url)
