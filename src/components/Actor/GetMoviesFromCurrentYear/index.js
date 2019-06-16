@@ -45,7 +45,7 @@ export default class GetMoviesFromCurrentYear extends Component<{}> {
             name="star"
             size={25}
             color={"#ffffff"}
-            onPress={() => params.changeSort()}
+            onPress={() => navigation.navigate("getMoviesByRating")}
           />
         </View>
       )
@@ -105,20 +105,21 @@ export default class GetMoviesFromCurrentYear extends Component<{}> {
       .then(function(response) {
         let currentYearMovies = []
         response.data.forEach(function(movie) {
-          if (movie.year === 2017) {
+          if (movie.year === 2019) {
             currentYearMovies.push(movie)
           }
         })
         self.setState({
           showSpinner: false,
-          movieData: (currentYearMovies.length > 1) ? _.sortBy(currentYearMovies, self.state.sortingMode) : currentYearMovies
+          movieData: currentYearMovies
+          //movieData: (currentYearMovies.length > 1) ? _.sortBy(currentYearMovies, self.state.sortingMode) : currentYearMovies
         });
         ToastAndroid.show("Movies List loaded!", ToastAndroid.SHORT);
         console.log(response.data.length);
       })
       .catch(function(error) {
         console.log("There has been a problem with your fetch operation: " + error.message);
-        ToastAndroid.show("There was an error with your request!" + error.message, ToastAndroid.SHORT);
+        ToastAndroid.show("There was an error with your request! " + error.message, ToastAndroid.SHORT);
         self.setState({
           showSpinner: false,
         })
@@ -153,13 +154,13 @@ export default class GetMoviesFromCurrentYear extends Component<{}> {
         {/* The list component. The data attribute defines the which JSON is used to load the data. */}
         <FlatList
           contentContainerStyle={styles.movieList}
-          data={this.state.movieData.sort((a, b) =>{return b.year - a.year})}
+          data={this.state.movieData.sort((a, b) =>{return b.rating - a.rating})}
           renderItem={({ item, index }) => (
             <ListItem
               divider
               centerElement={{
                 primaryText: item.title + " (" + item.year.toString() + ")",
-                secondaryText: (this.state.sortingMode === "rating") ? "Rating: " + item.rating.toString() : "Length: " + item.rating.toString()
+                secondaryText: "Rating: " + item.rating.toString()
               }}
               onPress={() => this.openUpdateModal(index)}
             />
