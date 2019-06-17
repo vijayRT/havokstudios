@@ -53,6 +53,7 @@ export default class GetGenres extends Component<{}> {
       genreData: [],
       showSpinner: true,
       isModalVisible: false,
+      isGenreListLoaded: false,
       
     }; // this.state controls the data on an activity. When you modify the state using this.setState() function, the screen is refreshed with the updated values
   }
@@ -82,19 +83,52 @@ export default class GetGenres extends Component<{}> {
        console.log(response.status);
         self.setState({
           showSpinner: false,
-          genreData: response.data
+          genreData: response.data,
+          isGenreListLoaded: true
         });
+        this.setGenreList(response.data)
         ToastAndroid.show("Movies List loaded!", ToastAndroid.SHORT);
         console.log(response.data.length);
       })
       .catch(function(error) {
-        console.log("There has been a problem with your fetch operation: " + error.message)
-        ToastAndroid.show("There was an error with your request!" + error.message, ToastAndroid.SHORT);
-        self.setState({
-          showSpinner: false,
-        })        
+        if (!self.state.isGenreListLoaded){
+          ToastAndroid.show("There was an error with your request!", ToastAndroid.SHORT);
+          self.setState({
+            showSpinner: false,
+          });
+        }
+        else {
+          this.getGenreList();
+        }
       });
   }  
+  setGenreList = async (data) => {
+    try {
+      await AsyncStorage.setItem('genreList', JSON.stringify(data));
+      ToastAndroid.show("Movies List Loaded and Saved!", ToastAndroid.SHORT);
+    } catch(e) {
+      console.log(e);
+      ToastAndroid.show("Couldn't save Movie List!", ToastAndroid.SHORT);
+    }
+  
+    console.log('Done.')
+  }
+
+  getGenreList = async () => {
+    try {
+      const mainList = await AsyncStorage.getItem('genreList');
+      console.log(mainList);
+      const parsedList = JSON.parse(mainList);
+      if(parsedList !== null) {
+        this.setState({
+          movieData: parsedList
+        })
+        ToastAndroid.show("Movie list loaded offline!", ToastAndroid.SHORT);
+      }
+    } catch(e) {
+      ToastAndroid.show("Couldn't retrieve saved list!", ToastAndroid.SHORT);
+    }
+  }
   render() {
     return (
       <View style={styles.container}>

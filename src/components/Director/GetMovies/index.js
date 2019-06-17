@@ -162,7 +162,9 @@ export default class GetMovies extends Component<{}> {
       rating: this.state.addMovieRating,
       length: this.state.addMovieLength
     }
-    axios.post(url, requestBody).then(function() {
+    this.setMainList([...this.state.movieData, requestBody]);
+    axios.post(url, requestBody)
+    .then(function() {
       ToastAndroid.show("Movies Added! Refresh the list.", ToastAndroid.SHORT);
       self.setState({
         addMovieTitle: "",
@@ -172,6 +174,9 @@ export default class GetMovies extends Component<{}> {
         addMovieRating: 0,
         addMovieLength: 0
       });
+    })
+    .catch(function(error) {
+      this.setMainList([...this.state.movieData, requestBody]);
     });
     
     this._toggleModal();

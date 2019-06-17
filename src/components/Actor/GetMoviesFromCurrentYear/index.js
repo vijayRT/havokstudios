@@ -13,8 +13,10 @@ import Spinner from "react-native-loading-spinner-overlay";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import Modal from "react-native-modal";
 const axios = require("axios");
+var _ = require('lodash');
 import Config from "react-native-config";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import ActionButton from 'react-native-action-button';
 const { height: HEIGHT } = Dimensions.get("window");
 
 export default class GetMoviesFromCurrentYear extends Component<{}> {
@@ -110,8 +112,8 @@ export default class GetMoviesFromCurrentYear extends Component<{}> {
         })
         self.setState({
           showSpinner: false,
-          movieData: currentYearMovies
-          //movieData: (currentYearMovies.length > 1) ? _.sortBy(currentYearMovies, self.state.sortingMode) : currentYearMovies
+          //movieData: currentYearMovies
+          movieData: (currentYearMovies.length > 1) ? _.sortBy(currentYearMovies, self.state.sortingMode) : currentYearMovies
         });
         ToastAndroid.show("Movies List loaded!", ToastAndroid.SHORT);
         console.log(response.data.length);
@@ -159,7 +161,7 @@ export default class GetMoviesFromCurrentYear extends Component<{}> {
               divider
               centerElement={{
                 primaryText: item.title + " (" + item.year.toString() + ")",
-                secondaryText: "Rating: " + item.rating.toString()
+                secondaryText: (this.state.sortingMode === "rating") ? "Rating: " + item.rating.toString() : "Length: " + item.length.toString()
               }}
               onPress={() => this.openUpdateModal(index)}
             />
@@ -211,6 +213,22 @@ export default class GetMoviesFromCurrentYear extends Component<{}> {
             </View>
           </KeyboardAwareScrollView>
         </Modal>
+        <ActionButton buttonColor="#303135" renderIcon={() => 
+          <Icon name="sort" style={styles.actionButtonIcon} />
+        }>
+          <ActionButton.Item buttonColor='#303135' title="Sort By Length" onPress={() => {
+            this.setState({sortingMode: "length"})
+            this.getMoviesByGenre();
+            }}>
+            <Icon name="movie" style={styles.actionButtonIcon} />
+          </ActionButton.Item>
+          <ActionButton.Item buttonColor='#303135' title="Sort By Rating" onPress={() => {
+            this.setState({sortingMode: "rating"})
+            this.getMoviesByGenre();
+            }}>
+            <Icon name="star" style={styles.actionButtonIcon} />
+          </ActionButton.Item>
+        </ActionButton>
       </View>
     );
   }
@@ -262,5 +280,10 @@ const styles = StyleSheet.create({
   addMovieModalOKButtonContainer: {
     flex: 1,
     alignItems: "flex-end"
-  }
+  },
+  actionButtonIcon: {
+    fontSize: 20,
+    height: 22,
+    color: 'white',
+  },
 });
