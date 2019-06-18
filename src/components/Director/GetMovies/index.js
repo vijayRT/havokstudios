@@ -122,30 +122,31 @@ export default class GetMovies extends Component<{}> {
   //
   getMovies() {
     let self = this;
-    let url = `${Config.base}${Config.movies}`; // axios is the library that is used for GET and POST operations. It's very simple.
-    axios
-      .get(url)
-      .then(function(response) {
-        console.log(response.status);
-        self.setState({
-          showSpinner: false,
-          movieData: _.sortBy(response.data, 'title'),
-          isMovieListLoaded: true
-        });
-        self.setMainList(response.data);
-        console.log(response.data.length);
-      })
-      .catch(function(error) {
-        if (!self.state.isMovieListLoaded){
-          ToastAndroid.show("There was an error with your request!", ToastAndroid.SHORT);
+    if (!this.state.isMovieListLoaded){
+      let url = `${Config.base}${Config.movies}`; // axios is the library that is used for GET and POST operations. It's very simple.
+      axios
+        .get(url)
+        .then(function(response) {
+          console.log(response.status);
           self.setState({
             showSpinner: false,
+            movieData: _.sortBy(response.data, 'title'),
+            isMovieListLoaded: true
           });
-        }
-        else {
-          this.getMainList();
-        }
-      });
+          self.setMainList(response.data);
+          console.log(response.data.length);
+        })
+        .catch(function(error) {
+          
+          self.getMainList();
+          self.setState({showSpinner: false})
+          }
+        );
+      }
+      else {
+      this.getMainList();
+      
+    }
   };
     
   //

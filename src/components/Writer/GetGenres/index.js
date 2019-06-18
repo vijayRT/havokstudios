@@ -76,31 +76,31 @@ export default class GetGenres extends Component<{}> {
   //
   getGenres() {
     let self = this;
-    let url = `${Config.base}${Config.genres}`; // axios is the library that is used for GET and POST operations. It's very simple.
-    axios
-      .get(url)
-      .then(function(response) {
-       console.log(response.status);
-        self.setState({
-          showSpinner: false,
-          genreData: response.data,
-          isGenreListLoaded: true
-        });
-        this.setGenreList(response.data)
-        ToastAndroid.show("Movies List loaded!", ToastAndroid.SHORT);
-        console.log(response.data.length);
-      })
-      .catch(function(error) {
-        if (!self.state.isGenreListLoaded){
-          ToastAndroid.show("There was an error with your request!", ToastAndroid.SHORT);
+    if (!this.state.isGenreListLoaded){
+      let url = `${Config.base}${Config.genres}`; // axios is the library that is used for GET and POST operations. It's very simple.
+      axios
+        .get(url)
+        .then(function(response) {
+        console.log(response.status);
           self.setState({
             showSpinner: false,
+            genreData: response.data,
+            isGenreListLoaded: true
           });
-        }
-        else {
-          this.getGenreList();
-        }
-      });
+          self.setGenreList(response.data)
+          ToastAndroid.show("Movies List loaded!", ToastAndroid.SHORT);
+          console.log(response.data.length);
+        })
+        .catch(function(error) {
+          
+          self.getGenreList();
+          self.setState({showSpinner: false})
+        });
+    }
+    else {
+      this.getGenreList();
+      
+    }
   }  
   setGenreList = async (data) => {
     try {
@@ -121,7 +121,7 @@ export default class GetGenres extends Component<{}> {
       const parsedList = JSON.parse(mainList);
       if(parsedList !== null) {
         this.setState({
-          movieData: parsedList
+          genreData: parsedList
         })
         ToastAndroid.show("Movie list loaded offline!", ToastAndroid.SHORT);
       }
