@@ -2,7 +2,7 @@
 
 ### Prerequisites:
 
-1. Have your prof's server running in a terminal window. Steps to run server are given on the server repo.
+1. Steps to run server are given on the server repo.
 
 2. Have an Android emulator running
 
@@ -39,7 +39,7 @@ All the important code is in here.
 
 ### assets
 
-Images and shit
+Images
 
 ### .env
 
